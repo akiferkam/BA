@@ -1,0 +1,21 @@
+$ dmesg | grep -iE "usb|uvc|ci_hdrc"
+
+usbcore: registered new interface driver usbfs
+usbcore: registered new interface driver hub
+usbcore: registered new device driver usb
+usb_phy_generic usb_phy0: supply vcc not found, using dummy regulator
+ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+usbcore: registered new interface driver usb-storage
+ci_hdrc ci_hdrc.0: EHCI Host Controller
+ci_hdrc ci_hdrc.0: new USB bus registered, assigned bus number 1
+ci_hdrc ci_hdrc.0: USB 2.0 started, EHCI 1.00
+hub 1-0:1.0: USB hub found
+usbcore: registered new interface driver uvcvideo
+usbcore: registered new interface driver usbhid
+usbhid: USB HID core driver
+usb 1-1: new high-speed USB device number 2 using ci_hdrc
+usb 1-1: Found UVC 1.00 device USB 2.0 Camera (0c45:636d)
+usb 1-1: Failed to query (GET_INFO) UVC control 7 on unit 1: 0 (exp. 1).
+input: USB 2.0 Camera: USB Camera as /devices/soc0/axi/e0002000.usb/ci_hdrc.0/usb1/1-1/1-1:1.0/input/input0
+usb 1-1: reset high-speed USB device number 2 using ci_hdrc
+usb 1-1: reset high-speed USB device number 2 using ci_hdrc

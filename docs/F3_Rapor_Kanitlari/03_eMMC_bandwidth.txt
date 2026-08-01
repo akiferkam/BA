@@ -1,0 +1,13 @@
+$ date; dd if=/dev/zero of=/mnt/emmc/bwtest2 bs=1M count=50; sync; date
+
+Fri Mar  9 14:28:51 UTC 2018
+50+0 records in
+50+0 records out
+Fri Mar  9 14:28:56 UTC 2018
+
+YORUM:
+50 MB veri ~5 saniyede yazildi (sync dahil) -> ~10 MB/s yazma hizi.
+(Not: Board tarihi/saati dogru senkronize degil - RTC yok, NTP yok -
+bu normal, sadece GORECELI zaman farki (5 saniye) onemli olan olcum.)
+
+Onceki ayni testte de ayni sonuc (~10 MB/s) alinmisti - TUTARLI.

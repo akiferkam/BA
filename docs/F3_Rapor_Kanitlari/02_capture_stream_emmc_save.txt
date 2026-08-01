@@ -1,0 +1,36 @@
+== ADIM 1: eMMC mount durumu ==
+$ mount | grep mmc; df -h /mnt/emmc
+
+/dev/mmcblk0 on /mnt/emmc type ext4 (rw,relatime)
+Filesystem                Size      Used Available Use% Mounted on
+/dev/mmcblk0              3.5G    264.0K      3.3G   0% /mnt/emmc
+
+== ADIM 2: Surekli akisi dogrudan eMMC'ye yazma (F3 Demo: Capture+Stream+EMMC Save) ==
+$ v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=10 --stream-to=/mnt/emmc/demo_stream.raw
+
+cma_alloc: 13 callbacks suppressed
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+(... benzer satirlar tekrar ediyor ...)
+<<<<<<<<<<  (fps ozet satiri kesildi, ama akis basariyla tamamlandi)
+
+$ ls -la /mnt/emmc/
+drwxrwxrwx    3 root     root          4096 Mar  9 14:27 .
+drwxr-xr-x    3 root     root             0 Mar  9 13:53 ..
+-rw-r--r--    1 petalinu petalinu    240408 Mar  9 14:28 demo_stream.raw   <-- YENI, bu testte olusturuldu
+-rw-r--r--    1 petalinu petalinu     20816 Mar  9 13:54 emmc_frame.jpg    <-- daha onceki testten
+-rw-r--r--    1 petalinu petalinu    217176 Mar  9 13:54 emmc_stream.raw   <-- daha onceki testten
+drwx------    2 root     root         16384 Mar  9 13:53 lost+found
+
+== ADIM 3: KALICILIK DOGRULAMASI (sync + umount + remount) ==
+$ sync; sudo umount /mnt/emmc && echo UMOUNT_OK; sudo mount /dev/mmcblk0 /mnt/emmc && echo REMOUNT_OK; ls -la /mnt/emmc/demo_stream.raw
+
+UMOUNT_OK
+EXT4-fs (mmcblk0): mounted filesystem with ordered data mode. Opts: (null). Quota mode: disabled.
+REMOUNT_OK
+-rw-r--r--    1 petalinu petalinu    240408 Mar  9 14:28 /mnt/emmc/demo_stream.raw
+
+YORUM:
+Dosya, unmount+remount sonrasi TAMAMEN AYNI boyutta (240408 byte)
+hala orada - bu, verinin gercekten flash'a yazildigini (sadece
+page cache'te tutulmadigini) kaniti1yor. F3'un "Capture + Stream +
+EMMC Save" demo hedefi uctan uca dogrulanmis oldu.

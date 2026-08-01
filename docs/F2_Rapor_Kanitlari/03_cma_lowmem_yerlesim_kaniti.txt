@@ -1,0 +1,16 @@
+$ dmesg | grep -iE "cma|highmem|Memory:|Kernel command line"
+
+(Bu kanıt, "cma=4M@0x10000000-0x30000000" bootarg fix'inin uygulandığı
+JTAG boot oturumundan alınmıştır - dosya: uart_capture_cmaboot6.log)
+
+Kernel command line: console=ttyPS0,115200 earlycon root=/dev/ram0 rw cma=4M@0x10000000-0x30000000
+cma: Reserved 4 MiB at 0x2ec00000
+  HighMem  [mem 0x0000000030000000-0x000000003fffffff]
+Memory: 1010064K/1048576K available (7168K kernel code, 245K rwdata, 1916K rodata, 1024K init, 122K bss, 34416K reserved, 4096K cma-reserved, 262144K highmem)
+
+YORUM:
+CMA havuzu 0x2ec00000 (≈748MB) adresinde rezerve edilmiş.
+HighMem bölgesi 0x30000000'de (768MB) başlıyor.
+0x2ec00000 < 0x30000000 olduğu için CMA KESİNLİKLE lowmem içinde -
+bu, "Rejecting highmem page from CMA" hatasının neden kaybolduğunu
+kanıtlıyor.

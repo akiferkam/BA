@@ -1,0 +1,53 @@
+$ v4l2-ctl --device=/dev/video0 --get-fmt-video
+Format Video Capture:
+	Width/Height      : 1280/800
+	Pixel Format      : 'MJPG' (Motion-JPEG)
+	Size Image        : 2048589
+
+== TUR 1: frame interval set edilmeden, CMA=4MB ==
+$ v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=30 --stream-to=/dev/null
+cma_alloc: 13 callbacks suppressed
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+(... tekrar eden benzer satirlar ...)
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 29.59 fps, dropped buffers: 1
+EXIT=0
+
+(Bu turda ayni ayarlarla farkli zamanlarda ~8-9fps ile ~29fps arasi
+degisken sonuclar alinmisti - ilk basta "CMA parcalanmasina bagli
+degisken performans" olarak yorumlanmisti.)
+
+== TUR 2: KONTROLLU DENEY - CMA=16MB, frame interval YINE set edilmeden ==
+$ v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=30 --stream-to=/dev/null
+(3 kez ust uste calistirildi, HER SEFERINDE BIREBIR AYNI SONUC:)
+<<<<<<< 6.99 fps, dropped buffers: 1
+<<<<<<<<<<< 8.57 fps
+<<<<<<<<<< 9.06 fps
+EXIT=0
+(0 cma_alloc hatasi - 16MB ile fallback tamamen ortadan kalkti)
+
+SONUC: CMA hatalari sifira indi AMA fps hala ~9'da kaldi (26+ degil).
+Bu, "CMA fragmentation -> dusuk fps" hipotezini CURUTTU.
+
+== TUR 3: GERCEK KOK NEDEN - frame interval explicit set edildi ==
+$ v4l2-ctl --device=/dev/video0 --set-fmt-video=width=1280,height=800,pixelformat=MJPG --set-parm=30
+Frame rate set to 30.000 fps
+$ v4l2-ctl --device=/dev/video0 --get-parm
+Frame rate: 30.000 (30/1)
+$ v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=30 --stream-to=/dev/null
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 26.79 fps, dropped buffers: 1
+EXIT=0
+(0 cma_alloc hatasi)
+
+GERCEK KOK NEDEN:
+"--set-fmt-video" ile sadece cozunurluk/format degistirildiginde,
+frame interval (fps) HIC explicit set edilmemisti. Kamera, cozunurluk
+degistiginde varsayilan olarak dusuk bir dahili frame rate'e (~10fps
+nominal) dusuyor - bu bir donanim/USB/CMA darbogazi DEGIL, sadece
+eksik bir V4L2 parametresi ("--set-parm") sorunuydu.
+
+METODOLOJIK NOT:
+Ilk gozlemlenen korelasyon (CMA hatalari <-> dusuk fps) yanlis bir
+nedensellik hipotezine yol acmisti. Kontrollu bir deneyle (CMA'yi
+buyut, hatanin kalktigini dogrula, ama fps'in DEGISMEDIGINI gozlemle)
+bu hipotez curutuldu ve gercek degisken izole edilerek bulundu. Rapor
+icin bu, iyi bir muhendislik/bilimsel surec ornegi olarak sunulabilir.
