@@ -21,14 +21,18 @@ tez/
 │   ├── kanitlar/                               (canlı UART logları + yakalanan kareler)
 │   └── kaynak-kod-referans/
 │       └── system-user.dtsi                   (USB PHY + CMA device-tree fix'i)
-└── 03_Feature3_Application_Testing/
-    ├── F3_Report.md                           (eMMC + bandwidth/optimize + uygulama iskeleti)
-    ├── kanitlar/                               (canlı UART logları + eMMC kanıtları + uygulama testleri)
-    └── zyrenith-capture-kaynak-kod/
-        ├── zyrenith-capture.c                 (main — orkestrasyon)
-        ├── video_capture.c / .h                (V4L2 capture component)
-        ├── storage.c / .h                      (dosya yazma component)
-        └── Makefile
+├── 03_Feature3_Application_Testing/
+│   ├── F3_Report.md                           (eMMC + bandwidth/optimize + uygulama iskeleti)
+│   ├── kanitlar/                               (canlı UART logları + eMMC kanıtları + uygulama testleri)
+│   └── zyrenith-capture-kaynak-kod/
+│       ├── zyrenith-capture.c                 (main — orkestrasyon)
+│       ├── video_capture.c / .h                (V4L2 capture component)
+│       ├── storage.c / .h                      (dosya yazma component)
+│       └── Makefile
+└── 04_Bagimsiz_Kullanici_Testi/
+    ├── README.md
+    ├── 1.png – 9.png                          (öğrencinin kendi başına tekrarladığı test adımları)
+    └── frame.jpg, frame_from_uart.jpg          (öğrencinin kendi yakaladığı/aktardığı kareler)
 ```
 
 Ayrıca tam proje kaynak kodu (PetaLinux `project-spec/` + bu raporların orijinalleri) GitHub'da: **https://github.com/akiferkam/BA**
