@@ -1,0 +1,16 @@
+/include/ "system-conf.dtsi"
+/ {
+	chosen {
+		bootargs = "console=ttyPS0,115200 earlycon root=/dev/ram0 rw cma=16M@0x10000000-0x30000000";
+	};
+
+	usb_phy0: usb_phy0 {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
+};
+
+&usb0 {
+	usb-phy = <&usb_phy0>;
+	dr_mode = "host";
+};

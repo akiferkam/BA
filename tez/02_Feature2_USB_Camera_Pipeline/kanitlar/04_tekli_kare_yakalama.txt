@@ -1,0 +1,21 @@
+$ v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=1 --stream-to=/tmp/frame.jpg; echo EXIT=$?; ls -la /tmp/frame.jpg
+
+cma_alloc: 27 callbacks suppressed
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+cma: cma_alloc: reserved: alloc failed, req-size: 29 pages, ret: -16
+EXIT=0
+-rw-r--r--    1 petalinu petalinu     22344 Mar  9 14:25 /tmp/frame.jpg
+
+YORUM:
+"cma_alloc failed" mesajlari FATAL degil - surucu otomatik olarak
+normal (CMA-disi ama yine lowmem) sayfalara fallback yapiyor.
+EXIT=0 ve dosya boyutu (22344 byte, sifir degil) yakalamanin basarili
+oldugunu kanitliyor.

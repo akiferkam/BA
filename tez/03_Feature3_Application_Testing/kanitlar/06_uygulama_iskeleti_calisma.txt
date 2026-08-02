@@ -1,0 +1,72 @@
+F3 "SKELETON + COMPONENT TEST" - GERÇEK UYGULAMA İSKELETİ
+
+Şimdiye kadar sadece v4l2-ctl/dd gibi CLI araçlarıyla alt bileşenlerin
+çalıştığı kanıtlanmıştı. Bu, gerçek bir "component test" idi ama
+"skeleton" (uygulama iskeleti) eksikti. Bu bölümde PetaLinux'un kendi
+app-recipe mekanizmasıyla ("petalinux-create -t apps") gerçek, modüler
+bir C uygulaması yazıldı ve derlenip kartta test edildi.
+
+MİMARİ (proje: project-spec/meta-user/recipes-apps/zyrenith-capture/):
+  video_capture.c/.h  - V4L2 mmap-streaming capture component
+                         (open/format-negotiate/mmap/streamon/dqbuf-qbuf/
+                         streamoff/close) - BAĞIMSIZ TEST EDİLEBİLİR
+  storage.c/.h        - dosya yazma component (open/write/fsync) -
+                         BAĞIMSIZ TEST EDİLEBİLİR
+  zyrenith-capture.c  - main(): iki component'ı birbirine bağlayan
+                         orkestrasyon katmanı, komut satırı argümanları
+                         (-d device -o outdir -w width -h height -f fps
+                         -n count)
+
+DERLEME:
+$ petalinux-create -t apps -n zyrenith-capture --enable
+$ petalinux-build -c zyrenith-capture
+$ petalinux-build -c rootfs   (uygulamayı rootfs image'ına dahil etmek için)
+
+== TEST 1: /tmp'ye (tmpfs) yazma ==
+$ zyrenith-capture -d /dev/video0 -o /tmp/capture_test -w 1280 -h 800 -f 30 -n 5
+
+zyrenith-capture: device=/dev/video0 outdir=/tmp/capture_test 1280x800 @30fps, count=5
+zyrenith-capture: negotiated format 1280x800, 4 mmap buffers
+zyrenith-capture: done. captured=5 failed=0 elapsed=0.300s achieved=16.68fps
+APP_EXIT=0
+
+$ ls -la /tmp/capture_test/
+frame_0000.jpg (20776 byte) ... frame_0004.jpg (20848 byte)   [5 dosya, hepsi]
+
+Doğrulama: frame_0000.jpg host'a UART üzerinden aktarıldı, PIL ile
+1280x800 GEÇERLİ JPEG olarak doğrulandı. (Son 4 byte "00000000" -
+gerçek "FF D9" imzası offset 20770'te bulundu, sadece 4 byte zararsız
+padding sonrasında - JPEG decoder'lar bunu görmezden gelir.)
+
+== TEST 2: eMMC'ye doğrudan yazma (GERÇEK F3 senaryosu) ==
+$ mkdir -p /run/media/mmcblk0/app_capture
+$ zyrenith-capture -d /dev/video0 -o /run/media/mmcblk0/app_capture \
+    -w 1280 -h 800 -f 30 -n 10
+
+zyrenith-capture: device=/dev/video0 outdir=/run/media/mmcblk0/app_capture 1280x800 @30fps, count=10
+zyrenith-capture: negotiated format 1280x800, 4 mmap buffers
+zyrenith-capture: done. captured=10 failed=0 elapsed=0.481s achieved=20.80fps
+APP_EXIT=0
+
+(Bu 20.80fps, fsync() DAHİL gerçek uçtan-uca hız - v4l2-ctl'nin salt
+capture ölçümünden farklı olarak, her frame'in gerçekten diske
+yazılıp flush edildiği an dahil edilerek ölçüldü.)
+
+$ ls -la /run/media/mmcblk0/app_capture/
+10 dosya, frame_0000.jpg (22536 byte) ... frame_0009.jpg (23344 byte)
+
+== KALICILIK DOĞRULAMASI ==
+$ sync; sudo umount /run/media/mmcblk0; sudo mount /dev/mmcblk0 /run/media/mmcblk0
+$ ls /run/media/mmcblk0/app_capture/
+(10 dosyanın hepsi hâlâ orada)
+
+frame_0005.jpg host'a aktarıldı, PIL ile 1280x800 GEÇERLİ JPEG olarak
+doğrulandı (bkz. 14_uygulama_iskeleti_ornek_kare.jpg).
+
+SONUÇ:
+F3'ün "Skeleton + Component Test" maddesi artık gerçek anlamda
+tamamlandı - elde CLI komutları değil, modüler component'lardan
+(video_capture, storage) oluşan, gerçekten çalışan, tekrar
+kullanılabilir bir C uygulaması var. Bu uygulama, tezin ilerleyen
+fazlarında (görüntü işleme, ek özellikler) doğrudan üzerine
+inşa edilebilir bir temel oluşturuyor.

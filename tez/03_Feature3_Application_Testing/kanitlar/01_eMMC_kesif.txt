@@ -1,0 +1,23 @@
+$ cat /proc/partitions | grep -E "major|mmcblk"
+
+major minor  #blocks  name
+ 179        0    3817472 mmcblk0
+
+$ dmesg | grep -iE "mmc|sdhci"
+
+sdhci: Secure Digital Host Controller Interface driver
+sdhci: Copyright(c) Pierre Ossman
+sdhci-pltfm: SDHCI platform and OF driver helper
+mmc0: SDHCI controller on e0101000.mmc [e0101000.mmc] using ADMA
+mmc0: new high speed MMC card at address 0001
+mmcblk0: mmc0:0001 S40004 3.64 GiB
+mmcblk0boot0: mmc0:0001 S40004 4.00 MiB
+mmcblk0boot1: mmc0:0001 S40004 4.00 MiB
+mmcblk0rpmb: mmc0:0001 S40004 4.00 MiB, chardev (245:0)
+EXT4-fs (mmcblk0): mounted filesystem with ordered data mode. Opts: (null). Quota mode: disabled.
+
+YORUM:
+"new high speed MMC card", mmcblk0boot0/boot1 (donanim boot
+partition'lari) ve mmcblk0rpmb (Replay Protected Memory Block) -
+hepsi eMMC'ye ozgu ozellikler, bunun bir SD kart degil GERCEK eMMC
+oldugunu kanitliyor. Kapasite: 3.64 GiB, model S40004.
