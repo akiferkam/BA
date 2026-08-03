@@ -8,24 +8,51 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int storage_ensure_dir(const char *dir)
+static int mkdir_if_missing(const char *path)
 {
 	struct stat st;
 
-	if (stat(dir, &st) == 0) {
-		if (!(st.st_mode & S_IFDIR)) {
+	if (stat(path, &st) == 0) {
+		if (!S_ISDIR(st.st_mode)) {
 			fprintf(stderr, "storage: %s exists and is not a directory\n",
-				dir);
+				path);
 			return -1;
 		}
 		return 0;
 	}
 
-	if (mkdir(dir, 0775) == -1 && errno != EEXIST) {
-		fprintf(stderr, "storage: mkdir(%s): %s\n", dir, strerror(errno));
+	if (mkdir(path, 0775) == -1 && errno != EEXIST) {
+		fprintf(stderr, "storage: mkdir(%s): %s\n", path, strerror(errno));
 		return -1;
 	}
 	return 0;
+}
+
+int storage_ensure_dir(const char *dir)
+{
+	char path[512];
+	size_t len;
+	size_t i;
+
+	len = strlen(dir);
+	if (len == 0 || len >= sizeof(path)) {
+		fprintf(stderr, "storage: invalid path length for %s\n", dir);
+		return -1;
+	}
+	memcpy(path, dir, len + 1);
+
+	/* Walk the path and create each missing parent, e.g. for
+	 * "/a/b/c" this creates "/a", then "/a/b", then "/a/b/c". */
+	for (i = 1; i < len; i++) {
+		if (path[i] != '/')
+			continue;
+		path[i] = '\0';
+		if (mkdir_if_missing(path) != 0)
+			return -1;
+		path[i] = '/';
+	}
+
+	return mkdir_if_missing(path);
 }
 
 int storage_save_frame(const char *dir, unsigned int frame_number,

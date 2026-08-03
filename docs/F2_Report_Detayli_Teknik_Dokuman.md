@@ -274,7 +274,7 @@ od -x /tmp/frame.jpg
 ```bash
 v4l2-ctl --device=/dev/video0 --stream-mmap --stream-count=10 --stream-to=/tmp/video.raw
 ```
-**Sonuç: 7.66-7.89 fps, 10 kareden sadece 1 buffer drop.** Ayrı bir 3 karelik doğrulama akışı çekilip host'a aktarıldı, 3 kare de FF D8/FF D9 imzalarından ayrıştırılıp PIL ile doğrulandı — hepsi geçerli 1280x800 JPEG.
+**Sonuç: 7.66-7.89 fps, 10 kareden sadece 1 buffer drop.** *(Bu ölçüm `--set-parm` düzeltmesinden ÖNCEdir — frame rate explicit set edilmediği için düşük çıkmıştır; aynı ayarlarla düzeltme sonrası ölçülen 26.79 fps için bkz. F3 raporu §3.4.)* Ayrı bir 3 karelik doğrulama akışı çekilip host'a aktarıldı, 3 kare de FF D8/FF D9 imzalarından ayrıştırılıp PIL ile doğrulandı — hepsi geçerli 1280x800 JPEG.
 
 ---
 
